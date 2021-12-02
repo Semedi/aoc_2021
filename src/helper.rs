@@ -30,3 +30,25 @@ pub fn read_input(day: i64) -> Option<Vec<i32>>{
 
     Some(data)
 }
+
+pub fn read_input_str_i(day: i64) -> Option<Vec<(String, i32)>>{
+
+    let mut data = Vec::new();
+
+    if let Ok(lines) = read_lines(format!("input/day{}.txt", day)) {
+        for line in lines {
+            if let Ok(value) = line {
+                let split = value.split(" ").collect::<Vec<&str>>();
+                data.push((String::from(split[0]), split[1].parse::<i32>().unwrap()));
+            }
+            else {
+                println!("fail read lines!");
+                return None;
+            }
+        }
+    } else {
+        return None;
+    }
+
+    Some(data)
+}
