@@ -31,6 +31,27 @@ pub fn read_input(day: i64) -> Option<Vec<i32>>{
     Some(data)
 }
 
+pub fn read_input_raw(day: i64) -> Option<Vec<String>>{
+
+    let mut data = Vec::new();
+
+    if let Ok(lines) = read_lines(format!("input/day{}.txt", day)) {
+        for line in lines {
+            if let Ok(value) = line {
+                data.push(value);
+            }
+            else {
+                println!("fail read lines!");
+                return None;
+            }
+        }
+    } else {
+        return None;
+    }
+
+    Some(data)
+}
+
 pub fn read_input_str_i(day: i64) -> Option<Vec<(String, i32)>>{
 
     let mut data = Vec::new();
