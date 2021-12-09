@@ -1,7 +1,7 @@
 use std::fs;
 
-const MAPWIDTH: u32 = 10;
-const MAPHEIGHT: u32 = 5;
+const MAPWIDTH: u32 = 100;
+const MAPHEIGHT: u32 = 100;
 
 
 fn idx(x: i32, y: i32) -> Option<i32> {
@@ -71,6 +71,8 @@ fn main() {
     }
 
 
+
+    let mut total_basins = Vec::new();
     for y in 0..MAPHEIGHT {
         for x in 0..MAPWIDTH {
             let positions = vec![-1, 1];
@@ -88,21 +90,20 @@ fn main() {
                 .collect::<Vec<i32>>()
             );
 
-            if let Some(mut i) = idx(x as i32, y as i32) {
+            if let Some(i) = idx(x as i32, y as i32) {
                 let min = *points.iter().min().unwrap();
                 let act = map[i as usize];
-
-                let mut xx = x;
-                let mut yy = y;
 
                 // basin
                 if act < min {
                     let mut marks = vec![false; (MAPHEIGHT * MAPWIDTH) as usize];
                     let mut basins = Vec::new();
                     basins.push((x,y));
-                    println!("current: {}", act);
+                    marks[i as usize] = true;
 
-                    for basin in &mut basins {
+                    let mut basin_index = 0;
+                    loop {
+                        let basin = basins[basin_index];
                         let a = basin.0 as i32;
                         let b = basin.1 as i32;
 
@@ -113,14 +114,33 @@ fn main() {
                                 let tile = map[index as usize];
                                 if tile != 9 && !marks[index as usize] {
                                     basins.push((aa as u32, bb as u32));
+                                    marks[index as usize] = true;
                                 }
                             }
                         }
+                        basin_index += 1;
+                        if basins.len() == basin_index { break; }
                     }
+
+                    total_basins.push(basins);
                 }
             }
         }
     }
 
-    println!("p1: {}", sum);
+
+    let mut counter_basins = Vec::new();
+    for points in &total_basins {
+        counter_basins.push(points.iter().count());
+    }
+
+    counter_basins.sort();
+    sum = 1;
+    for (i, c) in counter_basins.iter().rev().enumerate() {
+        if i == 3 { break; }
+        sum *= *c as i32;
+    }
+
+
+    println!("p2 {:?}", sum);
 }
