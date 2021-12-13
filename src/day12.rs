@@ -17,6 +17,7 @@ macro_rules! map {
 
 fn count_paths(caves: &HashMap<String, HashSet<String>>, current: &str, visited: &mut HashSet<String>) -> usize {
     if current == "end" {
+        visited.remove(current);
         return 1;
     }
 
@@ -41,8 +42,9 @@ fn count_paths(caves: &HashMap<String, HashSet<String>>, current: &str, visited:
     n
 }
 
-fn count_paths2(caves: &HashMap<String, HashSet<String>>, current: &str, visited: &mut HashMap<String, usize>) -> usize {
+fn count_paths2(caves: &HashMap<String, HashSet<String>>, current: &str, visited: &mut HashSet<String>, again: &mut Option<String>) -> usize {
     if current == "end" {
+        visited.remove(current);
         return 1;
     }
 
@@ -51,26 +53,33 @@ fn count_paths2(caves: &HashMap<String, HashSet<String>>, current: &str, visited
     for path in paths {
         let is_small = &path.to_ascii_lowercase() == path; 
 
+        if path == "start" {
+            continue;
+        }
+
         if is_small {
-
-            if visited.contains_key(path) {
-                if visited[path] == 2 {
-                    continue;
-                } else {
-
-                    if path != "start" && path != "end" {
-                        visited.insert(path.to_string(), 2); 
-                    }
-                }
+            if !visited.contains(path) {
+                visited.insert(path.to_string());
+            }
+            else if again.is_none() && path != "start" && path != "end" {
+                *again = Some(path.to_string());
 
             } else {
-                visited.insert(path.to_string(), 1);
+                continue;
             }
         }
 
-        n += count_paths2(caves, path, visited);
+        if again.is_some() {
+            n += count_paths(caves, path, visited);
+        } else {
+            n += count_paths2(caves, path, visited, again);
+        }
 
-        visited.remove(path);
+        if *again == Some(path.to_string()) {
+            *again = None
+        } else {
+            visited.remove(path);
+        }
     }
 
     n
@@ -103,10 +112,11 @@ fn read_file(filename: &str) -> HashMap<String, HashSet<String>> {
 fn main() {
     let caves = read_file("input/day12.txt");
     let n = count_paths(&caves, "start", &mut HashSet::from(["start".to_string()]));
+    let n2 = count_paths2(&caves, "start", &mut HashSet::from(["start".to_string()]), &mut None);
 
     //let n2 = count_paths2(&caves, "start", &mut map!["start".to_string() => 2]);
 
     println!("part 1: {}", n);
-    //println!("part 2: {}", n2);
+    println!("part 2: {}", n2);
 
 }
